@@ -40,13 +40,13 @@ A reinforcement learning project where an agent navigates a grid world, collecti
 
 ### Train the DQL Agent
 ```
-python src/train.py
+python -m src.train.py
 ```
 
 
 ### Test and Visualize
 ```
-python src/test_visualize.py
+python -m src.test_visualize.py
 ```
 
 
