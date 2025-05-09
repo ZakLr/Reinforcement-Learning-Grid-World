@@ -7,10 +7,46 @@ import torch.optim as optim
 class RandomAgent:
     def __init__(self, env):
         self.env = env
-        self.action_size = 4
+        self.action_size = 4  # Up, Down, Left, Right
 
     def act(self, state):
-        return random.randint(0, self.action_size - 1)
+        agent_pos = (state[0], state[1])
+        enemy_pos = (state[2], state[3])
+        best_move = None
+        best_action = None
+        best_distance = float('inf')
+
+        # Define movement deltas
+        action_map = {
+            0: (-1, 0),  # Up
+            1: (1, 0),   # Down
+            2: (0, -1),  # Left
+            3: (0, 1),   # Right
+        }
+
+        for action, (dx, dy) in action_map.items():
+            new_pos = (enemy_pos[0] + dx, enemy_pos[1] + dy)
+
+            # Check boundaries
+            if not (0 <= new_pos[0] < self.env.grid_size[0] and 0 <= new_pos[1] < self.env.grid_size[1]):
+                continue
+
+            # Avoid obstacles and penalty zones
+            if new_pos in self.env.dynamic_obstacles or new_pos in self.env.penalty_zones:
+                continue
+
+            # Calculate Manhattan distance
+            distance = abs(new_pos[0] - agent_pos[0]) + abs(new_pos[1] - agent_pos[1])
+            if distance < best_distance:
+                best_distance = distance
+                best_move = new_pos
+                best_action = action
+
+        # Fall back to a random valid move if no good one found
+        if best_action is not None:
+            return best_action
+        else:
+            return random.randint(0, self.action_size - 1)
 
 class DQLAgent:
     def __init__(self, state_size, action_size, model_path="examples/trained_model/dql_agent.pth"):
